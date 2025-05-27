@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cloud Drawing App</title>
+  <style>
+    canvas { border: 1px solid black; }
+    #controls { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Gambar Sesuka Hati!</h2>
+  <canvas id="canvas" width="500" height="400"></canvas>
+  <div id="controls">
+    <button onclick="upload()">Upload ke Cloud</button>
+    <span id="status"></span>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    let drawing = false;
+    canvas.onmousedown = () => drawing = true;
+    canvas.onmouseup = () => drawing = false;
+    canvas.onmousemove = draw;
+
+    function draw(e) {
+      if (!drawing) return;
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#000";
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    }
+
+    async function upload() {
+      document.getElementById("status").innerText = "Uploading...";
+
+      // Konversi canvas ke blob
+      canvas.toBlob(async function(blob) {
+        const formData = new FormData();
+        formData.append("file", blob, "drawing.png");
+
+        const response = await fetch("http://localhost:8000/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json();
+        document.getElementById("status").innerHTML = `✅ Uploaded! <a href="${result.url}" target="_blank">Lihat Gambar</a>`;
+      }, "image/png");
+    }
+  </script>
+</body>
+</html>
