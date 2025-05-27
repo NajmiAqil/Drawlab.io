@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import firebase_admin
 from firebase_admin import credentials, storage
+from firebase import init_firebase, upload_image_to_storage, save_metadata_to_firestore, fetch_all_images
 import uuid
 
 app = FastAPI()
